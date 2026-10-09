@@ -1,0 +1,32 @@
+[package]
+name = "opencloud"
+version = "1.0.0"
+edition = "2024"
+authors = ["OpenCloud Team"]
+license = "MIT"
+description = "A unified pure-Rust workspace launcher for the ArtCraft app suite"
+default-run = "OpenCloud"
+
+[[bin]]
+name = "OpenCloud"
+path = "src/main.rs"
+
+[dependencies]
+eframe = { version = "0.36", default-features = false, features = ["default_fonts", "wgpu"] }
+egui = "0.36"
+egui_extras = { version = "0.36", features = ["image"] }
+image = { version = "0.25", default-features = false, features = ["png", "jpeg"] }
+tokio = { version = "1", features = ["full"] }
+reqwest = { version = "0.12", features = ["json", "stream"] }
+futures-util = "0.3"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+dirs = "6.0"
+semver = "1.0"
+log = "0.4"
+env_logger = "0.11"
+crossbeam-channel = "0.5"
+rfd = "0.17.2"
+
+[build-dependencies]
+cc = "1.0"
