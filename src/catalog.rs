@@ -162,6 +162,7 @@ fn get_fallback_asset(app_id: &str) -> (Option<String>, Option<ReleaseAssetInfo>
                     name: "photocraft-0.5.0-macos-universal.dmg".into(),
                     download_url: "https://github.com/storytold/photocraft/releases/download/v0.5.0/photocraft-0.5.0-macos-universal.dmg".into(),
                     size_bytes: 74849198,
+                    expected_sha256: None,
                 }),
             ),
             "vectorcraft" => (
@@ -170,6 +171,7 @@ fn get_fallback_asset(app_id: &str) -> (Option<String>, Option<ReleaseAssetInfo>
                     name: "vectorcraft-0.7.0-macos-universal.dmg".into(),
                     download_url: "https://github.com/storytold/vectorcraft/releases/download/v0.7.0/vectorcraft-0.7.0-macos-universal.dmg".into(),
                     size_bytes: 85348352,
+                    expected_sha256: None,
                 }),
             ),
             _ => (None, None),
@@ -184,6 +186,7 @@ fn get_fallback_asset(app_id: &str) -> (Option<String>, Option<ReleaseAssetInfo>
                     name: "photocraft-0.5.0-windows-x64-portable.zip".into(),
                     download_url: "https://github.com/storytold/photocraft/releases/download/v0.5.0/photocraft-0.5.0-windows-x64-portable.zip".into(),
                     size_bytes: 78000000,
+                    expected_sha256: None,
                 }),
             ),
             _ => (None, None),
@@ -198,6 +201,7 @@ fn get_fallback_asset(app_id: &str) -> (Option<String>, Option<ReleaseAssetInfo>
                     name: "photocraft-0.5.0-linux-x86_64.AppImage".into(),
                     download_url: "https://github.com/storytold/photocraft/releases/download/v0.5.0/photocraft-0.5.0-linux-x86_64.AppImage".into(),
                     size_bytes: 74000000,
+                    expected_sha256: None,
                 }),
             ),
             _ => (None, None),
@@ -383,6 +387,7 @@ fn parse_release_payload(
                         name: name.to_string(),
                         download_url: download_url.to_string(),
                         size_bytes: size,
+                        expected_sha256: None,
                     });
                     break;
                 }
@@ -398,6 +403,7 @@ fn parse_release_payload(
                         name: name.to_string(),
                         download_url: download_url.to_string(),
                         size_bytes: size,
+                        expected_sha256: None,
                     });
                     break;
                 }
@@ -413,6 +419,7 @@ fn parse_release_payload(
                         name: name.to_string(),
                         download_url: download_url.to_string(),
                         size_bytes: size,
+                        expected_sha256: None,
                     });
                     break;
                 }
@@ -420,7 +427,37 @@ fn parse_release_payload(
         }
     }
 
+    if let Some(ref mut asset) = chosen_asset {
+        if let Some(body_text) = json["body"].as_str() {
+            asset.expected_sha256 = find_sha256_in_text(body_text, &asset.name);
+        }
+    }
+
     (tag, notes, published, chosen_asset)
+}
+
+pub fn find_sha256_in_text(text: &str, asset_name: &str) -> Option<String> {
+    for line in text.lines() {
+        if line.contains(asset_name) {
+            let tokens = line.split(|c: char| {
+                c.is_whitespace()
+                    || c == '|'
+                    || c == '('
+                    || c == ')'
+                    || c == ':'
+                    || c == '='
+                    || c == '`'
+                    || c == '*'
+            });
+            for token in tokens {
+                let clean = token.trim();
+                if clean.len() == 64 && clean.chars().all(|c| c.is_ascii_hexdigit()) {
+                    return Some(clean.to_lowercase());
+                }
+            }
+        }
+    }
+    None
 }
 
 pub fn is_newer_version(latest: &str, current: &str) -> bool {
@@ -465,5 +502,22 @@ mod tests {
         assert!(is_newer_version("v1.0.0", "0.9.9"));
         assert!(!is_newer_version("0.5.0", "0.5.0"));
         assert!(!is_newer_version("0.4.0", "0.5.0"));
+    }
+
+    #[test]
+    fn test_find_sha256_in_text() {
+        let text1 = "5a855909ff7b5a83a4bfb1df9a0a4c0dbd0ab2e946a4892c55b6ef2bfd97eb80  photocraft-0.5.0-macos-universal.dmg";
+        assert_eq!(
+            find_sha256_in_text(text1, "photocraft-0.5.0-macos-universal.dmg"),
+            Some("5a855909ff7b5a83a4bfb1df9a0a4c0dbd0ab2e946a4892c55b6ef2bfd97eb80".to_string())
+        );
+
+        let text2 = "| vectorcraft-0.7.0.dmg | `9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08` |";
+        assert_eq!(
+            find_sha256_in_text(text2, "vectorcraft-0.7.0.dmg"),
+            Some("9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08".to_string())
+        );
+
+        assert_eq!(find_sha256_in_text("some random notes", "photocraft.dmg"), None);
     }
 }

@@ -269,6 +269,7 @@ impl OpenCloudApp {
             let app_name = app.name.clone();
             if let Some(ref asset) = app.download_asset {
                 let download_url = asset.download_url.clone();
+                let expected_sha256 = asset.expected_sha256.clone();
                 let p_tx = self.progress_tx.clone();
                 let app_id_clone = app_id.clone();
 
@@ -278,7 +279,7 @@ impl OpenCloudApp {
                 };
 
                 self.tokio_rt.spawn(async move {
-                    start_download_and_install(app_id_clone, download_url, p_tx).await;
+                    start_download_and_install(app_id_clone, download_url, expected_sha256, p_tx).await;
                 });
             } else {
                 self.show_toast(

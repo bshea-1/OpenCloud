@@ -1,0 +1,163 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+    inputs:
+      tag_name:
+        description: "Release tag (e.g. v1.0.1)"
+        required: true
+        default: "v1.0.1"
+
+permissions:
+  contents: write
+
+jobs:
+  build-macos:
+    name: Build macOS (Universal)
+    runs-on: macos-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-apple-darwin, x86_64-apple-darwin
+
+      - name: Rust Cache
+        uses: Swatinem/rust-cache@v2
+
+      - name: Build Universal Binary and DMG
+        run: |
+          chmod +x scripts/bundle-macos.sh
+          ./scripts/bundle-macos.sh release
+
+      - name: Compute Checksum
+        run: |
+          cd target
+          shasum -a 256 OpenCloud-*.dmg > OpenCloud-macos-universal.dmg.sha256
+
+      - name: Upload macOS Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-release
+          path: |
+            target/OpenCloud-*.dmg
+            target/*.sha256
+
+  build-windows:
+    name: Build Windows (x64)
+    runs-on: windows-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Rust Cache
+        uses: Swatinem/rust-cache@v2
+
+      - name: Build Release Binary
+        run: cargo build --release --bin OpenCloud
+
+      - name: Package Windows Portable Zip
+        shell: pwsh
+        run: |
+          $Tag = if ($env:GITHUB_REF_NAME) { $env:GITHUB_REF_NAME } else { "${{ inputs.tag_name }}" }
+          $Version = $Tag.TrimStart('v')
+          if (-not $Version) { $Version = "1.0.0" }
+          New-Item -ItemType Directory -Force -Path target/package | Out-Null
+          Copy-Item target/release/OpenCloud.exe target/package/
+          Copy-Item target/release/OpenCloud.exe target/OpenCloud.exe
+          $ExeHash = (Get-FileHash -Path "target/OpenCloud.exe" -Algorithm SHA256).Hash.ToLower()
+          "$ExeHash  OpenCloud.exe" | Out-File -FilePath "target/OpenCloud.exe.sha256" -Encoding ascii
+          Compress-Archive -Path target/package/OpenCloud.exe -DestinationPath "target/OpenCloud-$Version-windows-x64-portable.zip" -Force
+          $Hash = (Get-FileHash -Path "target/OpenCloud-$Version-windows-x64-portable.zip" -Algorithm SHA256).Hash.ToLower()
+          "$Hash  OpenCloud-$Version-windows-x64-portable.zip" | Out-File -FilePath "target/OpenCloud-$Version-windows-x64-portable.zip.sha256" -Encoding ascii
+
+      - name: Upload Windows Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-release
+          path: |
+            target/OpenCloud-*-windows-x64-portable.zip
+            target/OpenCloud.exe
+            target/*.sha256
+
+  build-linux:
+    name: Build Linux (x86_64)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libxcb-render0-dev libxcb-shape0-dev libxcb-xfixes0-dev libxkbcommon-dev libssl-dev libasound2-dev libfontconfig1-dev libwayland-dev libx11-dev libx11-xcb-dev libgl1-mesa-dev libxcursor-dev libxrandr-dev libxi-dev
+
+      - name: Setup Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Rust Cache
+        uses: Swatinem/rust-cache@v2
+
+      - name: Build Release Binary
+        run: cargo build --release --bin OpenCloud
+
+      - name: Package Linux Archive
+        run: |
+          TAG="${GITHUB_REF_NAME:-${{ inputs.tag_name }}}"
+          VERSION="${TAG#v}"
+          if [ -z "$VERSION" ] || [ "$VERSION" = "main" ]; then
+            VERSION="1.1.0"
+          fi
+          mkdir -p target/package
+          cp target/release/OpenCloud target/package/
+          chmod +x target/package/OpenCloud
+          cp target/release/OpenCloud "target/OpenCloud-${VERSION}-linux-x86_64.AppImage"
+          sha256sum "target/OpenCloud-${VERSION}-linux-x86_64.AppImage" > "target/OpenCloud-${VERSION}-linux-x86_64.AppImage.sha256"
+          tar -czf "target/OpenCloud-${VERSION}-linux-x86_64.tar.gz" -C target/package OpenCloud
+          sha256sum "target/OpenCloud-${VERSION}-linux-x86_64.tar.gz" > "target/OpenCloud-${VERSION}-linux-x86_64.tar.gz.sha256"
+
+      - name: Upload Linux Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-release
+          path: |
+            target/OpenCloud-*-linux-x86_64.AppImage
+            target/OpenCloud-*-linux-x86_64.tar.gz
+            target/*.sha256
+
+  publish:
+    name: Publish GitHub Release
+    needs: [build-macos, build-windows, build-linux]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download all build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: release_artifacts
+
+      - name: Prepare Unified Checksums
+        run: |
+          mkdir -p release_dist
+          find release_artifacts -type f \( -name "*.dmg" -o -name "*.zip" -o -name "*.tar.gz" -o -name "*.AppImage" -o -name "*.exe" \) -exec cp {} release_dist/ \;
+          cd release_dist
+          sha256sum * > SHA256SUMS.txt
+          cat SHA256SUMS.txt
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name || inputs.tag_name }}
+          name: OpenCloud ${{ github.ref_name || inputs.tag_name }}
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+          files: |
+            release_dist/*

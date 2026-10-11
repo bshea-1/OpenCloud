@@ -39,6 +39,7 @@ pub struct ReleaseAssetInfo {
     pub name: String,
     pub download_url: String,
     pub size_bytes: u64,
+    pub expected_sha256: Option<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

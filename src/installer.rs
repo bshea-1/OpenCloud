@@ -286,6 +286,10 @@ fn install_windows_package(app_id: &str, pkg_path: &Path) -> Result<String, Stri
             return Err("MSI installer failed".into());
         }
         Ok(format!("Installed {}", app_id))
+    } else if file_str.ends_with(".exe") {
+        let exe = target_dir.join(format!("{}.exe", app_id));
+        std::fs::copy(pkg_path, &exe).map_err(|e| e.to_string())?;
+        Ok(exe.to_string_lossy().to_string())
     } else {
         Err("Unsupported package format".into())
     }
@@ -480,26 +484,75 @@ mod tests {
             let reloaded = AppSettings::load();
             assert_eq!(reloaded.apps.install_directory, AppSettings::default().apps.install_directory, "Settings not reset to default");
         } else {
-            // Mock bundle test if DMG not cached
-            let mock_pkg = std::env::temp_dir().join("TestMockApp.app");
-            let _ = std::fs::create_dir_all(mock_pkg.join("Contents/MacOS"));
-            let _ = std::fs::write(mock_pkg.join("Contents/MacOS/TestMockApp"), b"#!/bin/sh\nexit 0\n");
+            #[cfg(target_os = "macos")]
+            {
+                // Mock bundle test if DMG not cached
+                let mock_pkg = std::env::temp_dir().join("TestMockApp.app");
+                let _ = std::fs::create_dir_all(mock_pkg.join("Contents/MacOS"));
+                let _ = std::fs::write(mock_pkg.join("Contents/MacOS/TestMockApp"), b"#!/bin/sh\nexit 0\n");
 
-            // Test custom path install with mock bundle
-            let mut custom_settings = AppSettings::default();
-            custom_settings.apps.install_directory = custom_dir.to_string_lossy().to_string();
-            assert!(custom_settings.save().is_ok());
+                // Test custom path install with mock bundle
+                let mut custom_settings = AppSettings::default();
+                custom_settings.apps.install_directory = custom_dir.to_string_lossy().to_string();
+                assert!(custom_settings.save().is_ok());
 
-            let res = install_package("photocraft", &mock_pkg);
-            assert!(res.is_ok());
-            assert!(custom_dir.join("TestMockApp.app").exists());
+                let res = install_package("photocraft", &mock_pkg);
+                assert!(res.is_ok());
+                assert!(custom_dir.join("TestMockApp.app").exists());
 
-            let _ = uninstall_app("photocraft");
-            let _ = std::fs::remove_dir_all(&mock_pkg);
-            let _ = std::fs::remove_dir_all(&custom_dir);
+                let _ = uninstall_app("photocraft");
+                let _ = std::fs::remove_dir_all(&mock_pkg);
+                let _ = std::fs::remove_dir_all(&custom_dir);
 
-            let reset_settings = AppSettings::default();
-            assert!(reset_settings.save().is_ok());
+                let reset_settings = AppSettings::default();
+                assert!(reset_settings.save().is_ok());
+            }
+            #[cfg(target_os = "windows")]
+            {
+                let mock_pkg = std::env::temp_dir().join("photocraft.exe");
+                let _ = std::fs::write(&mock_pkg, b"mock windows executable");
+
+                let mut custom_settings = AppSettings::default();
+                custom_settings.apps.install_directory = custom_dir.to_string_lossy().to_string();
+                assert!(custom_settings.save().is_ok());
+
+                let res = install_package("photocraft", &mock_pkg);
+                assert!(res.is_ok(), "Windows install failed: {:?}", res);
+                assert!(custom_dir.join("photocraft").join("photocraft.exe").exists());
+
+                let detected = detect_installed_app("photocraft");
+                assert!(detected.is_installed);
+
+                let _ = uninstall_app("photocraft");
+                let detected_after = detect_installed_app("photocraft");
+                assert!(!detected_after.is_installed);
+
+                let _ = std::fs::remove_file(&mock_pkg);
+                let _ = std::fs::remove_dir_all(&custom_dir);
+
+                let reset_settings = AppSettings::default();
+                assert!(reset_settings.save().is_ok());
+            }
+            #[cfg(target_os = "linux")]
+            {
+                let mock_pkg = std::env::temp_dir().join("photocraft");
+                let _ = std::fs::write(&mock_pkg, b"#!/bin/sh\nexit 0\n");
+
+                let mut custom_settings = AppSettings::default();
+                custom_settings.apps.install_directory = custom_dir.to_string_lossy().to_string();
+                assert!(custom_settings.save().is_ok());
+
+                let res = install_package("photocraft", &mock_pkg);
+                assert!(res.is_ok());
+                assert!(custom_dir.join("photocraft").exists());
+
+                let _ = uninstall_app("photocraft");
+                let _ = std::fs::remove_file(&mock_pkg);
+                let _ = std::fs::remove_dir_all(&custom_dir);
+
+                let reset_settings = AppSettings::default();
+                assert!(reset_settings.save().is_ok());
+            }
         }
 
         // Cleanup temp test directory

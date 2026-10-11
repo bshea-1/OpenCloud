@@ -88,6 +88,7 @@ impl AutoUpdater {
                                     start_download_and_install(
                                         app.id.clone(),
                                         asset.download_url.clone(),
+                                        asset.expected_sha256.clone(),
                                         progress_tx.clone(),
                                     )
                                     .await;

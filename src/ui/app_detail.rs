@@ -840,11 +840,25 @@ mod tests {
 
     #[test]
     fn test_hero_screenshot_loader() {
-        // Test loading photocraft hero image
-        let img = load_hero_color_image("photocraft");
-        assert!(img.is_some(), "Photocraft hero image should be loaded from cache");
-        let unwrapped = img.unwrap();
-        assert!(unwrapped.width() > 0 && unwrapped.height() > 0);
+        let nonexistent = load_hero_color_image("nonexistent_app_id_test");
+        assert!(nonexistent.is_none());
+
+        let test_path = std::env::temp_dir().join("opencloud_hero_testapp.png");
+        let tiny_png: &[u8] = &[
+            0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0x00, 0x00, 0x00, 0x0d,
+            0x49, 0x48, 0x44, 0x52, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01,
+            0x08, 0x06, 0x00, 0x00, 0x00, 0x1f, 0x15, 0xc4, 0x89, 0x00, 0x00, 0x00,
+            0x0a, 0x49, 0x44, 0x41, 0x54, 0x78, 0x9c, 0x63, 0x00, 0x01, 0x00, 0x00,
+            0x05, 0x00, 0x01, 0x0d, 0x0a, 0x2d, 0xb4, 0x00, 0x00, 0x00, 0x00, 0x49,
+            0x45, 0x4e, 0x44, 0xae, 0x42, 0x60, 0x82,
+        ];
+        let _ = std::fs::write(&test_path, tiny_png);
+        let loaded = load_hero_color_image("testapp");
+        let _ = std::fs::remove_file(&test_path);
+        assert!(loaded.is_some());
+        let unwrapped = loaded.unwrap();
+        assert_eq!(unwrapped.width(), 1);
+        assert_eq!(unwrapped.height(), 1);
     }
 }
 

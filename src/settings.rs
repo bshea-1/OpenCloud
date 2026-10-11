@@ -164,6 +164,21 @@ impl Default for NetworkSettings {
     }
 }
 
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct SecuritySettings {
+    pub verify_checksums: bool,
+    pub strict_verification: bool,
+}
+
+impl Default for SecuritySettings {
+    fn default() -> Self {
+        Self {
+            verify_checksums: true,
+            strict_verification: false,
+        }
+    }
+}
+
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct AppSettings {
     pub general: GeneralSettings,
@@ -171,6 +186,7 @@ pub struct AppSettings {
     pub storage: StorageSettings,
     pub sync: SyncSettings,
     pub network: NetworkSettings,
+    pub security: SecuritySettings,
 }
 
 impl AppSettings {
@@ -231,5 +247,7 @@ mod tests {
         assert_eq!(settings.apps.import_previous_settings, deserialized.apps.import_previous_settings);
         assert_eq!(settings.apps.remove_previous_versions, deserialized.apps.remove_previous_versions);
         assert_eq!(settings.storage.clean_installers_after_install, deserialized.storage.clean_installers_after_install);
+        assert_eq!(settings.security.verify_checksums, deserialized.security.verify_checksums);
+        assert_eq!(settings.security.strict_verification, deserialized.security.strict_verification);
     }
 }

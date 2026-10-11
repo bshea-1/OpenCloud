@@ -683,6 +683,46 @@ fn render_apps_tab(ui: &mut Ui, state: &mut SettingsViewState, palette: &ThemePa
             }
         });
     }
+
+    ui.add_space(20.0);
+    ui.label(
+        RichText::new("Security & Verification")
+            .font(FontId::proportional(15.0))
+            .color(palette.text_primary)
+            .strong(),
+    );
+    ui.add_space(6.0);
+
+    if ui
+        .checkbox(
+            &mut state.settings.security.verify_checksums,
+            "Verify SHA-256 checksums before package installation",
+        )
+        .changed()
+    {
+        state.save();
+    }
+    ui.label(
+        RichText::new("Computes cryptographic hashes during download to verify integrity against upstream release digests.")
+            .font(FontId::proportional(11.0))
+            .color(palette.text_muted),
+    );
+
+    ui.add_space(4.0);
+    if ui
+        .checkbox(
+            &mut state.settings.security.strict_verification,
+            "Strict verification mode (require upstream SHA-256 digest)",
+        )
+        .changed()
+    {
+        state.save();
+    }
+    ui.label(
+        RichText::new("Rejects any installation where the upstream repository has not published a valid SHA-256 checksum.")
+            .font(FontId::proportional(11.0))
+            .color(palette.text_muted),
+    );
 }
 
 fn render_sync_tab(ui: &mut Ui, state: &mut SettingsViewState, palette: &ThemePalette) {

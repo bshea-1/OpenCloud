@@ -4,7 +4,7 @@
 
 **a unified, native desktop application and suite manager (pure Rust) for the open-source StoryTold creative software family. 12 creative and productivity applications without webviews or electron runtimes.**
 
-[![Latest Release](https://img.shields.io/badge/Release-v1.0.0-0969da?style=for-the-badge&logo=github)](https://github.com/bshea-1/OpenCloud/releases) [![Platforms](https://img.shields.io/badge/Platforms-macOS%20%7C%20Linux%20%7C%20Windows-5856d6?style=for-the-badge)](#installation)
+[![Latest Release](https://img.shields.io/badge/Release-v1.1.0-0969da?style=for-the-badge&logo=github)](https://github.com/bshea-1/OpenCloud/releases) [![Platforms](https://img.shields.io/badge/Platforms-macOS%20%7C%20Linux%20%7C%20Windows-5856d6?style=for-the-badge)](#installation)
 [![License: MIT](https://img.shields.io/badge/License-MIT-3DA639?style=for-the-badge)](https://opensource.org/licenses/MIT)
 
 </div>
@@ -23,7 +23,7 @@ OpenCloud connects and coordinates independent open-source creative applications
 
 - Native Performance: Built in pure Rust with hardware-accelerated rendering via `wgpu` and `egui`.
 - Lightweight Footprint: Minimal memory usage (under 30 MB RAM) with fast startup times.
-- Application Management: One-click installation, background update checks, and clean uninstalls.
+- Application Management: One-click installation, SHA-256 checksum integrity verification, background update checks, and clean uninstalls.
 - Offline Capability: Operates entirely locally with cached metadata and direct launch capabilities.
 - Cross-Platform: Consistent interface across macOS, Windows, and Linux.
 
@@ -53,22 +53,22 @@ The OpenCloud suite manages twelve independent open-source desktop applications:
 <a id="installation"></a>
 ## Installation & Downloads
 
-Pre-built binaries are available for every major desktop platform on the [Releases](https://github.com/bshea-1/OpenCloud/releases) page:
+Pre-built binaries are built deterministically from source via GitHub Actions CI with full SHA-256 checksums published on the [Releases](https://github.com/bshea-1/OpenCloud/releases) page:
 
-- **macOS (Universal - Apple Silicon & Intel)**: Download `OpenCloud-1.0.0-macos-universal.dmg`. Open the disk image and drag OpenCloud into your Applications folder. (If prompted by Gatekeeper on first launch, right-click and choose **Open**, or run `xattr -cr /Applications/OpenCloud.app`).
-- **Windows (x64)**: Download `OpenCloud.exe` directly or download `OpenCloud-1.0.0-windows-x64-portable.zip` and extract it. Double-click `OpenCloud.exe` to launch. (If prompted by Windows SmartScreen on first launch, click **More info** then **Run anyway**).
-- **Linux (x86_64 AppImage)**: Download `OpenCloud-1.0.0-linux-x86_64.AppImage`. Make the file executable (`chmod +x OpenCloud-1.0.0-linux-x86_64.AppImage`) and run it.
+- **macOS (Universal - Apple Silicon & Intel)**: Download `OpenCloud-1.1.0-macos-universal.dmg`. Open the disk image and drag OpenCloud into your Applications folder. (Because OpenCloud is a free community project without an annual paid Apple Developer certificate, Gatekeeper may prompt on first launch: right-click and choose **Open**, or run `xattr -cr /Applications/OpenCloud.app`).
+- **Windows (x64)**: Download `OpenCloud.exe` directly or download `OpenCloud-1.1.0-windows-x64-portable.zip` and extract it. Double-click `OpenCloud.exe` to launch. (If prompted by Windows SmartScreen due to no commercial EV certificate, click **More info** then **Run anyway**).
+- **Linux (x86_64 AppImage)**: Download `OpenCloud-1.1.0-linux-x86_64.AppImage`. Make the file executable (`chmod +x OpenCloud-1.1.0-linux-x86_64.AppImage`) and run it.
 
 ### macOS Terminal Installation
 
 You can install and launch OpenCloud directly from your terminal with a single command:
 
 ```bash
-curl -fsSL -O "https://github.com/bshea-1/OpenCloud/releases/latest/download/OpenCloud-1.0.0-macos-universal.dmg" && \
-hdiutil attach OpenCloud-1.0.0-macos-universal.dmg -mountpoint /Volumes/OpenCloud -nobrowse -quiet && \
+curl -fsSL -O "https://github.com/bshea-1/OpenCloud/releases/latest/download/OpenCloud-1.1.0-macos-universal.dmg" && \
+hdiutil attach OpenCloud-1.1.0-macos-universal.dmg -mountpoint /Volumes/OpenCloud -nobrowse -quiet && \
 cp -R /Volumes/OpenCloud/OpenCloud.app /Applications/ && \
 hdiutil detach /Volumes/OpenCloud -quiet && \
-rm -f OpenCloud-1.0.0-macos-universal.dmg && \
+rm -f OpenCloud-1.1.0-macos-universal.dmg && \
 xattr -cr /Applications/OpenCloud.app && \
 open /Applications/OpenCloud.app
 ```
@@ -78,17 +78,17 @@ open /Applications/OpenCloud.app
 
 ```bash
 # 1. Download the latest Universal DMG
-curl -fsSL -O "https://github.com/bshea-1/OpenCloud/releases/latest/download/OpenCloud-1.0.0-macos-universal.dmg"
+curl -fsSL -O "https://github.com/bshea-1/OpenCloud/releases/latest/download/OpenCloud-1.1.0-macos-universal.dmg"
 
 # 2. Mount the disk image
-hdiutil attach OpenCloud-1.0.0-macos-universal.dmg -mountpoint /Volumes/OpenCloud -nobrowse -quiet
+hdiutil attach OpenCloud-1.1.0-macos-universal.dmg -mountpoint /Volumes/OpenCloud -nobrowse -quiet
 
 # 3. Copy to /Applications
 cp -R /Volumes/OpenCloud/OpenCloud.app /Applications/
 
 # 4. Unmount volume and clean up installer
 hdiutil detach /Volumes/OpenCloud -quiet
-rm -f OpenCloud-1.0.0-macos-universal.dmg
+rm -f OpenCloud-1.1.0-macos-universal.dmg
 
 # 5. Clear Gatekeeper quarantine attribute
 xattr -cr /Applications/OpenCloud.app

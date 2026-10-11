@@ -31,8 +31,13 @@ if [ -f "assets/icons/AppIcon.icns" ]; then
     cp "assets/icons/AppIcon.icns" "$RESOURCES_DIR/AppIcon.icns"
 fi
 
+APP_VERSION=$(grep '^version = ' Cargo.toml | head -n 1 | cut -d '"' -f 2)
+if [ -z "$APP_VERSION" ]; then
+    APP_VERSION="1.1.0"
+fi
+
 # Create Info.plist
-cat << 'EOF' > "$CONTENTS_DIR/Info.plist"
+cat << EOF > "$CONTENTS_DIR/Info.plist"
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
@@ -50,9 +55,9 @@ cat << 'EOF' > "$CONTENTS_DIR/Info.plist"
     <key>CFBundlePackageType</key>
     <string>APPL</string>
     <key>CFBundleShortVersionString</key>
-    <string>1.0.0</string>
+    <string>${APP_VERSION}</string>
     <key>CFBundleVersion</key>
-    <string>1</string>
+    <string>${APP_VERSION}</string>
     <key>LSMinimumSystemVersion</key>
     <string>12.0</string>
     <key>NSHighResolutionCapable</key>
@@ -70,7 +75,7 @@ codesign --force --deep --sign - "$APP_DIR"
 codesign -vvv --deep --strict "$APP_DIR"
 
 if [ "$MODE" = "release" ]; then
-    DMG_NAME="OpenCloud-1.0.0-macos-universal.dmg"
+    DMG_NAME="OpenCloud-${APP_VERSION}-macos-universal.dmg"
     DMG_PATH="target/$DMG_NAME"
     STAGING_DIR="target/dmg_staging"
     echo "==> Creating draggable macOS DMG installer ($DMG_NAME)..."
@@ -85,5 +90,7 @@ if [ "$MODE" = "release" ]; then
     xattr -cr "$DMG_PATH"
     codesign --force --sign - "$DMG_PATH" 2>/dev/null || true
     rm -rf "$STAGING_DIR"
+    shasum -a 256 "$DMG_PATH" > "${DMG_PATH}.sha256"
     echo "==> Successfully generated signed draggable DMG: $DMG_PATH"
+    echo "==> SHA-256 Checksum: $(cat "${DMG_PATH}.sha256")"
 fi
