@@ -14,6 +14,7 @@ APPS=(
   "deckcraft"
   "gridcraft"
   "wordcraft"
+  "figcraft"
 )
 
 BIN_DIR="$HOME/.local/bin"

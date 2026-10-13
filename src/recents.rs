@@ -56,6 +56,7 @@ fn match_project_file(path: &PathBuf) -> Option<RecentProject> {
         "docx" | "md" | "txt" => ("wordcraft", "WordCraft"),
         "xlsx" | "csv" => ("gridcraft", "GridCraft"),
         "pptx" => ("deckcraft", "DeckCraft"),
+        "fig" | "figcraft" => ("figcraft", "FigCraft"),
         _ => return None,
     };
 

@@ -14,6 +14,7 @@ APPS=(
   "deckcraft"
   "gridcraft"
   "wordcraft"
+  "figcraft"
 )
 
 TEMP_DIR=$(mktemp -d)

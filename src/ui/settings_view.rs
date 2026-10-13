@@ -672,6 +672,7 @@ fn render_apps_tab(ui: &mut Ui, state: &mut SettingsViewState, palette: &ThemePa
                 ("deckcraft", "DeckCraft"),
                 ("gridcraft", "GridCraft"),
                 ("wordcraft", "WordCraft"),
+                ("figcraft", "FigCraft"),
             ];
 
             for (id, name) in app_list {

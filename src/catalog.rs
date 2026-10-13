@@ -150,6 +150,17 @@ pub const APP_CATALOG: &[CatalogDefinition] = &[
         accent_color: [46, 134, 222],
         file_formats: &[".docx", ".doc", ".md", ".txt"],
     },
+    CatalogDefinition {
+        id: "figcraft",
+        name: "FigCraft",
+        repo: "storytold/figcraft",
+        category: AppCategory::VectorGraphics,
+        description: "Used for interface design, auto layout, UI components, design systems, and interactive prototypes.",
+        token: "Fg",
+        accent_hex: "#02da96",
+        accent_color: [2, 218, 150],
+        file_formats: &[".figcraft", ".fig", ".svg"],
+    },
 ];
 
 fn get_fallback_asset(app_id: &str) -> (Option<String>, Option<ReleaseAssetInfo>) {
@@ -174,6 +185,15 @@ fn get_fallback_asset(app_id: &str) -> (Option<String>, Option<ReleaseAssetInfo>
                     expected_sha256: None,
                 }),
             ),
+            "figcraft" => (
+                Some("0.5.1".to_string()),
+                Some(ReleaseAssetInfo {
+                    name: "figcraft-0.5.1-macos-universal.dmg".into(),
+                    download_url: "https://github.com/storytold/figcraft/releases/download/v0.5.1/figcraft-0.5.1-macos-universal.dmg".into(),
+                    size_bytes: 92200000,
+                    expected_sha256: None,
+                }),
+            ),
             _ => (None, None),
         }
     }
@@ -189,6 +209,15 @@ fn get_fallback_asset(app_id: &str) -> (Option<String>, Option<ReleaseAssetInfo>
                     expected_sha256: None,
                 }),
             ),
+            "figcraft" => (
+                Some("0.5.1".to_string()),
+                Some(ReleaseAssetInfo {
+                    name: "figcraft-0.5.1-windows-x64-portable.zip".into(),
+                    download_url: "https://github.com/storytold/figcraft/releases/download/v0.5.1/figcraft-0.5.1-windows-x64-portable.zip".into(),
+                    size_bytes: 85000000,
+                    expected_sha256: None,
+                }),
+            ),
             _ => (None, None),
         }
     }
@@ -201,6 +230,15 @@ fn get_fallback_asset(app_id: &str) -> (Option<String>, Option<ReleaseAssetInfo>
                     name: "photocraft-0.5.0-linux-x86_64.AppImage".into(),
                     download_url: "https://github.com/storytold/photocraft/releases/download/v0.5.0/photocraft-0.5.0-linux-x86_64.AppImage".into(),
                     size_bytes: 74000000,
+                    expected_sha256: None,
+                }),
+            ),
+            "figcraft" => (
+                Some("0.5.1".to_string()),
+                Some(ReleaseAssetInfo {
+                    name: "figcraft-0.5.1-linux-x86_64.AppImage".into(),
+                    download_url: "https://github.com/storytold/figcraft/releases/download/v0.5.1/figcraft-0.5.1-linux-x86_64.AppImage".into(),
+                    size_bytes: 80000000,
                     expected_sha256: None,
                 }),
             ),
@@ -480,7 +518,7 @@ mod tests {
 
     #[test]
     fn test_catalog_completeness() {
-        assert_eq!(APP_CATALOG.len(), 12);
+        assert_eq!(APP_CATALOG.len(), 13);
         let ids: Vec<&str> = APP_CATALOG.iter().map(|c| c.id).collect();
         assert!(ids.contains(&"photocraft"));
         assert!(ids.contains(&"vectorcraft"));
@@ -494,6 +532,7 @@ mod tests {
         assert!(ids.contains(&"lightcraft"));
         assert!(ids.contains(&"effectcraft"));
         assert!(ids.contains(&"designcraft"));
+        assert!(ids.contains(&"figcraft"));
     }
 
     #[test]

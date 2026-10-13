@@ -652,6 +652,12 @@ fn get_app_features(app_id: &str) -> &'static [(&'static str, &'static str)] {
             ("Real-Time Word Metrics", "Word counts, reading time estimates, and grammar analysis."),
             ("Format Interop", "Seamless import and export of DOCX, Markdown, and formatted plain text."),
         ],
+        "figcraft" => &[
+            ("Interface Design & Auto Layout", "Bi-directional auto layout with wrap, grids, min/max sizing, and visual canvas padding handles."),
+            ("Components & Design Systems", "Main components, instance overrides, variant properties, modes, and scoped color/number variables."),
+            ("Interactive Prototyping", "Flows, connections, conditional logic, Smart Animate transitions, and realistic device frames."),
+            ("Dev Mode & Code Gen", "Property-level diffs, inspect measurements, and instant React, SwiftUI, Compose, and CSS export."),
+        ],
         _ => &[
             ("High Performance", "Rebuilt from scratch in pure Rust with zero bloat."),
             ("Modern Workflow", "Clean-room implementation designed for creative professionals."),
@@ -803,6 +809,7 @@ fn get_default_readme_summary(app_id: &str) -> String {
             "deckcraft" => "DeckCraft",
             "gridcraft" => "GridCraft",
             "wordcraft" => "WordCraft",
+            "figcraft" => "FigCraft",
             _ => "Creative Studio App",
         }
     )
@@ -813,7 +820,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_all_12_apps_have_features_and_readmes() {
+    fn test_all_apps_have_features_and_readmes() {
         let app_ids = [
             "photocraft",
             "vectorcraft",
@@ -827,6 +834,7 @@ mod tests {
             "deckcraft",
             "gridcraft",
             "wordcraft",
+            "figcraft",
         ];
 
         for id in app_ids {

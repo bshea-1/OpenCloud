@@ -31,12 +31,13 @@ OpenCloud connects and coordinates independent open-source creative applications
 
 ## Applications
 
-The OpenCloud suite manages twelve independent open-source desktop applications:
+The OpenCloud suite manages thirteen independent open-source desktop applications:
 
 | Application | Description | Repository |
 | :--- | :--- | :--- |
 | PhotoCraft | Professional raster image editing, layer stacks, non-destructive adjustments | [storytold/photocraft](https://github.com/storytold/photocraft) |
 | VectorCraft | Vector graphic illustration, Bézier curve manipulation, typography | [storytold/vectorcraft](https://github.com/storytold/vectorcraft) |
+| FigCraft | Interface design, responsive auto layout, design systems, interactive prototyping | [storytold/figcraft](https://github.com/storytold/figcraft) |
 | FilmCraft | Non-linear video editing, timeline sequencing, multi-track audio and video | [storytold/filmcraft](https://github.com/storytold/filmcraft) |
 | LightCraft | RAW photo development, non-destructive color grading, photo management | [storytold/lightcraft](https://github.com/storytold/lightcraft) |
 | PdfCraft | PDF inspection, document signing, page reorganization, document conversion | [storytold/pdfcraft](https://github.com/storytold/pdfcraft) |

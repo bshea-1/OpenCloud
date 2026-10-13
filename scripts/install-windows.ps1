@@ -13,7 +13,8 @@ $apps = @(
     "cadcraft",
     "deckcraft",
     "gridcraft",
-    "wordcraft"
+    "wordcraft",
+    "figcraft"
 )
 
 $installDir = "$env:LOCALAPPDATA\Programs\OpenCloud"

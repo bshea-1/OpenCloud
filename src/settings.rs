@@ -71,6 +71,7 @@ impl Default for AppInstallSettings {
             "deckcraft",
             "gridcraft",
             "wordcraft",
+            "figcraft",
         ] {
             auto_update_per_app.insert(id.to_string(), true);
         }

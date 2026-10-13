@@ -16,6 +16,7 @@ pub fn launch_app(app_id: &str, file_path: Option<&str>) -> Result<(), String> {
             "deckcraft" => "DeckCraft",
             "gridcraft" => "GridCraft",
             "wordcraft" => "WordCraft",
+            "figcraft" => "FigCraft",
             _ => app_id,
         };
 

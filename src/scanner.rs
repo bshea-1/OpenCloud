@@ -123,6 +123,7 @@ pub fn get_macos_app_names(app_id: &str) -> Vec<String> {
         "deckcraft" => vec!["DeckCraft".into(), "deckcraft".into()],
         "gridcraft" => vec!["GridCraft".into(), "gridcraft".into()],
         "wordcraft" => vec!["WordCraft".into(), "wordcraft".into()],
+        "figcraft" => vec!["FigCraft".into(), "figcraft".into()],
         _ => vec![app_id.to_string()],
     }
 }

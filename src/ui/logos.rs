@@ -14,6 +14,7 @@ fn get_raw_logo_bytes(app_id: &str) -> Option<&'static [u8]> {
         "deckcraft" => Some(include_bytes!("../../assets/logos/deckcraft.png")),
         "gridcraft" => Some(include_bytes!("../../assets/logos/gridcraft.png")),
         "wordcraft" => Some(include_bytes!("../../assets/logos/wordcraft.png")),
+        "figcraft" => Some(include_bytes!("../../assets/logos/figcraft.png")),
         "github" => Some(include_bytes!("../../assets/logos/github.png")),
         _ => None,
     }
@@ -172,7 +173,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_all_12_apps_have_logos() {
+    fn test_all_apps_have_logos() {
         let app_ids = [
             "photocraft",
             "vectorcraft",
@@ -186,6 +187,7 @@ mod tests {
             "deckcraft",
             "gridcraft",
             "wordcraft",
+            "figcraft",
             "github",
         ];
 
